@@ -10,7 +10,6 @@ import { Router } from "@angular/router";
 import { EMPTY, switchMap } from "rxjs";
 import { NgClass } from "@angular/common";
 import { ArticlesService } from "../services/articles.service";
-import { UserService } from "../../../core/auth/services/user.service";
 import { Article } from "../models/article.model";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
@@ -42,34 +41,17 @@ export class FavoriteButtonComponent {
   constructor(
     private readonly articleService: ArticlesService,
     private readonly router: Router,
-    private readonly userService: UserService,
   ) {}
 
   toggleFavorite(): void {
     this.isSubmitting = true;
+    if (!this.article.favorited) {
+      this.articleService.favorite(this.article.slug);
+    } else {
+      this.articleService.unfavorite(this.article.slug);
+    }
 
-    this.userService.isAuthenticated
-      .pipe(
-        switchMap((authenticated) => {
-          if (!authenticated) {
-            void this.router.navigate(["/register"]);
-            return EMPTY;
-          }
-
-          if (!this.article.favorited) {
-            return this.articleService.favorite(this.article.slug);
-          } else {
-            return this.articleService.unfavorite(this.article.slug);
-          }
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.toggle.emit(!this.article.favorited);
-        },
-        error: () => (this.isSubmitting = false),
-      });
+    this.toggle.emit(!this.article.favorited);
+    this.isSubmitting = false;
   }
 }

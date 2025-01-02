@@ -22,20 +22,13 @@
                 <i class="ion-trash-a"></i> Delete Article
               </button>
             </span>
-          } @else {
-            <span>
-              <app-follow-button
-                [profile]="article.author"
-                (toggle)="toggleFollowing($event)"
-              >
-              </app-follow-button>
 
+            <span>
               <app-favorite-button
                 [article]="article"
                 (toggle)="onToggleFavorite($event)"
               >
                 {{ article.favorited ? "Unfavorite" : "Favorite" }} Article
-                <span class="counter">({{ article.favoritesCount }})</span>
               </app-favorite-button>
             </span>
           }
@@ -47,7 +40,13 @@
       <div class="row article-content">
         <div class="col-md-12">
           <div [innerHTML]="article.body | markdown | async"></div>
-
+          <div *ngIf="article.image" class="article-image-component">
+            <img
+              [src]="article.image"
+              alt="Image de l'article"
+              style="max-width: 100%; margin-bottom: 20px"
+            />
+          </div>
           <ul class="tag-list">
             @for (tag of article.tagList; track tag) {
               <li class="tag-default tag-pill tag-outline">
@@ -79,19 +78,13 @@
                 <i class="ion-trash-a"></i> Delete Article
               </button>
             </span>
-          } @else {
-            <span>
-              <app-follow-button
-                [profile]="article.author"
-                (toggle)="toggleFollowing($event)"
-              />
 
+            <span>
               <app-favorite-button
                 [article]="article"
                 (toggle)="onToggleFavorite($event)"
               >
                 {{ article.favorited ? "Unfavorite" : "Favorite" }} Article
-                <span class="counter">({{ article.favoritesCount }})</span>
               </app-favorite-button>
             </span>
           }
@@ -100,7 +93,7 @@
 
       <div class="row">
         <div class="col-xs-12 col-md-8 offset-md-2">
-          <div *ifAuthenticated="true">
+          <div>
             <app-list-errors [errors]="commentFormErrors" />
             <form class="card comment-form" (ngSubmit)="addComment()">
               <fieldset [disabled]="isSubmitting">
@@ -113,24 +106,12 @@
                   ></textarea>
                 </div>
                 <div class="card-footer">
-                  <img
-                    [src]="
-                      currentUser?.image === null ? '' : currentUser?.image
-                    "
-                    class="comment-author-img"
-                  />
                   <button class="btn btn-sm btn-primary" type="submit">
                     Post Comment
                   </button>
                 </div>
               </fieldset>
             </form>
-          </div>
-
-          <div *ifAuthenticated="false">
-            <a [routerLink]="['/login']">Sign in</a> or
-            <a [routerLink]="['/register']">sign up</a> to add comments on this
-            article.
           </div>
 
           @for (comment of comments; track comment) {

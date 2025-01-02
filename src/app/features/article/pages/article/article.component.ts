@@ -1,25 +1,21 @@
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { User } from "../../../../core/auth/user.model";
 import { Article } from "../../models/article.model";
 import { ArticlesService } from "../../services/articles.service";
 import { CommentsService } from "../../services/comments.service";
-import { UserService } from "../../../../core/auth/services/user.service";
 import { ArticleMetaComponent } from "../../components/article-meta.component";
 import { AsyncPipe, NgClass, NgForOf, NgIf } from "@angular/common";
 import { MarkdownPipe } from "../../../../shared/pipes/markdown.pipe";
 import { ListErrorsComponent } from "../../../../shared/components/list-errors.component";
 import { ArticleCommentComponent } from "../../components/article-comment.component";
+
 import { catchError } from "rxjs/operators";
 import { combineLatest, throwError } from "rxjs";
 import { Comment } from "../../models/comment.model";
-import { IfAuthenticatedDirective } from "../../../../core/auth/if-authenticated.directive";
 import { Errors } from "../../../../core/models/errors.model";
-import { Profile } from "../../../profile/models/profile.model";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FavoriteButtonComponent } from "../../components/favorite-button.component";
-import { FollowButtonComponent } from "../../../profile/components/follow-button.component";
 
 @Component({
   selector: "app-article-page",
@@ -28,7 +24,6 @@ import { FollowButtonComponent } from "../../../profile/components/follow-button
     ArticleMetaComponent,
     RouterLink,
     NgClass,
-    FollowButtonComponent,
     FavoriteButtonComponent,
     NgForOf,
     MarkdownPipe,
@@ -37,14 +32,12 @@ import { FollowButtonComponent } from "../../../profile/components/follow-button
     FormsModule,
     ArticleCommentComponent,
     ReactiveFormsModule,
-    IfAuthenticatedDirective,
     NgIf,
   ],
   standalone: true,
 })
 export default class ArticleComponent implements OnInit {
   article!: Article;
-  currentUser!: User | null;
   comments: Comment[] = [];
   canModify: boolean = false;
 
@@ -60,7 +53,6 @@ export default class ArticleComponent implements OnInit {
     private readonly articleService: ArticlesService,
     private readonly commentsService: CommentsService,
     private readonly router: Router,
-    private readonly userService: UserService,
   ) {}
 
   ngOnInit(): void {
@@ -68,7 +60,6 @@ export default class ArticleComponent implements OnInit {
     combineLatest([
       this.articleService.get(slug),
       this.commentsService.getAll(slug),
-      this.userService.currentUser,
     ])
       .pipe(
         catchError((err) => {
@@ -77,11 +68,10 @@ export default class ArticleComponent implements OnInit {
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(([article, comments, currentUser]) => {
+      .subscribe(([article, comments]) => {
         this.article = article;
         this.comments = comments;
-        this.currentUser = currentUser;
-        this.canModify = currentUser?.username === article.author.username;
+        this.canModify = true;
       });
   }
 
@@ -93,10 +83,6 @@ export default class ArticleComponent implements OnInit {
     } else {
       this.article.favoritesCount--;
     }
-  }
-
-  toggleFollowing(profile: Profile): void {
-    this.article.author.following = profile.following;
   }
 
   deleteArticle(): void {
@@ -119,13 +105,14 @@ export default class ArticleComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (comment) => {
-          this.comments.unshift(comment);
-          this.commentControl.reset("");
-          this.isSubmitting = false;
+          console.log("Comment added:", comment); // Debug the response
+          this.comments.unshift(comment); // Add the new comment to the list
+          this.commentControl.reset(""); // Reset the form control
+          this.isSubmitting = false; // End submitting state
         },
         error: (errors) => {
-          this.isSubmitting = false;
-          this.commentFormErrors = errors;
+          this.isSubmitting = false; // End submitting state on error
+          this.commentFormErrors = errors; // Handle errors
         },
       });
   }

@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { Article } from "../models/article.model";
 import { ArticleMetaComponent } from "./article-meta.component";
 import { RouterLink } from "@angular/router";
-import { NgForOf } from "@angular/common";
+import { NgForOf, NgIf } from "@angular/common";
 import { FavoriteButtonComponent } from "./favorite-button.component";
 
 @Component({
@@ -15,25 +15,39 @@ import { FavoriteButtonComponent } from "./favorite-button.component";
           (toggle)="toggleFavorite($event)"
           class="pull-xs-right"
         >
-          {{ article.favoritesCount }}
         </app-favorite-button>
       </app-article-meta>
 
       <a [routerLink]="['/article', article.slug]" class="preview-link">
-        <h1>{{ article.title }}</h1>
+        <div class="article-header">
+          <img
+            *ngIf="article.image"
+            [src]="article.image"
+            alt="{{ article.title }}"
+            class="article-image"
+          />
+          <h1>{{ article.title }}</h1>
+        </div>
         <p>{{ article.description }}</p>
         <span>Read more...</span>
         <ul class="tag-list">
-          @for (tag of article.tagList; track tag) {
-            <li class="tag-default tag-pill tag-outline">
-              {{ tag }}
-            </li>
-          }
+          <li
+            *ngFor="let tag of article.tagList"
+            class="tag-default tag-pill tag-outline"
+          >
+            {{ tag }}
+          </li>
         </ul>
       </a>
     </div>
   `,
-  imports: [ArticleMetaComponent, FavoriteButtonComponent, RouterLink, NgForOf],
+  imports: [
+    ArticleMetaComponent,
+    FavoriteButtonComponent,
+    RouterLink,
+    NgForOf,
+    NgIf,
+  ],
   standalone: true,
 })
 export class ArticlePreviewComponent {

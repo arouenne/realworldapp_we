@@ -34,6 +34,42 @@
               </textarea>
             </fieldset>
 
+            <!-- Champ de recherche pour les images -->
+            <fieldset class="form-group">
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Rechercher une image"
+                [formControl]="imageSearchField"
+                (keyup.enter)="searchImages()"
+              />
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="searchImages()"
+              >
+                Rechercher
+              </button>
+            </fieldset>
+
+            <div class="image-gallery">
+              <div
+                class="image-result"
+                *ngFor="let image of imageResults"
+                (click)="selectImage(image)"
+              >
+                <img [src]="image.url" alt="Image résultat" />
+              </div>
+            </div>
+
+            <div *ngIf="selectedImage">
+              <h5>Selected image :</h5>
+              <img
+                [src]="selectedImage"
+                alt="Image sélectionnée"
+                style="max-width: 200px"
+              />
+            </div>
+
             <fieldset class="form-group">
               <input
                 class="form-control"

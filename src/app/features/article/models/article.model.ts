@@ -1,5 +1,3 @@
-import { Profile } from "../../profile/models/profile.model";
-
 export interface Article {
   slug: string;
   title: string;
@@ -10,5 +8,5 @@ export interface Article {
   updatedAt: string;
   favorited: boolean;
   favoritesCount: number;
-  author: Profile;
+  image: string;
 }
