@@ -16,7 +16,7 @@ This is a Angular application based on the RealWorld example app. It provides a 
 
    ```bash
    git clone https://github.com/arouenne/realworldapp_we.git
-   cd realworldapp_we.git
+   cd realworldapp_we
 
    ```
 
